@@ -9,15 +9,20 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
+function normalizeOrigin(url) {
+  return String(url || '').trim().replace(/\/$/, '');
+}
+
 function corsOrigin(origin, cb) {
   const allowed = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
     .split(',')
-    .map((s) => s.trim())
+    .map(normalizeOrigin)
     .filter(Boolean);
 
   // Allow non-browser / same-origin tools (no Origin header)
   if (!origin) return cb(null, true);
-  if (allowed.includes('*') || allowed.includes(origin)) return cb(null, true);
+  const incoming = normalizeOrigin(origin);
+  if (allowed.includes('*') || allowed.includes(incoming)) return cb(null, true);
   return cb(null, false);
 }
 
